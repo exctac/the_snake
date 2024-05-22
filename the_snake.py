@@ -3,7 +3,34 @@ from typing import List, Tuple, Union
 
 import pygame
 
-from constants import *
+
+# Константы для размеров поля и сетки:
+SCREEN_WIDTH, SCREEN_HEIGHT = 640, 480
+SCREEN_CENTER = SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2
+GRID_SIZE = 20
+GRID_WIDTH = SCREEN_WIDTH // GRID_SIZE
+GRID_HEIGHT = SCREEN_HEIGHT // GRID_SIZE
+
+# Направления движения:
+UP = (0, -1)
+DOWN = (0, 1)
+LEFT = (-1, 0)
+RIGHT = (1, 0)
+
+# Цвет фона - черный:
+BOARD_BACKGROUND_COLOR = (0, 0, 0)
+
+# Цвет границы ячейки
+BORDER_COLOR = (93, 216, 228)
+
+# Цвет яблока
+APPLE_COLOR = (255, 0, 0)
+
+# Цвет змейки
+SNAKE_COLOR = (0, 255, 0)
+
+# Скорость движения змейки:
+SPEED = 10
 
 # Настройка игрового окна:
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), 0, 32)
@@ -27,7 +54,10 @@ class GameObject:
         self.position = position
 
     def draw(self) -> None:
-        """Отрисовывает Объект на игровом поле. Переопределяется в дочерних классах."""
+        """
+        Отрисовывает Объект на игровом поле.
+        Переопределяется в дочерних классах.
+        """
         pass
 
 
@@ -52,8 +82,9 @@ class Apple(GameObject):
             exclude_positions: List[tuple[int, int]]
     ) -> None:
         """
-        Устанавливает для Яблока случайную позицию на игровом поле, исключая
-        попадание Яблока на позицию Змейки. 'exclude_positions' - список координат Змейки.
+        Устанавливает для Яблока случайную позицию на игровом поле,
+        исключая попадание Яблока на позицию Змейки.
+        'exclude_positions' - список координат Змейки.
         """
 
         free_positions = [
@@ -167,7 +198,11 @@ class Snake(GameObject):
 
 
 def handle_keys(game_object) -> None:
-    """Обрабатывает нажатия клавиш, чтобы изменить направление движения змейки."""
+    """
+    Обрабатывает нажатия клавиш, чтобы
+    изменить направление движения змейки.
+    """
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
@@ -184,6 +219,7 @@ def handle_keys(game_object) -> None:
 
 
 def main() -> None:
+    """Фукция запускает основной цикл игры."""
     # Инициализация PyGame:
     pygame.init()
 
