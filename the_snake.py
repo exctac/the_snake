@@ -86,7 +86,6 @@ class Apple(GameObject):
         исключая попадание Яблока на позицию Змейки.
         'exclude_positions' - список координат Змейки.
         """
-
         free_positions = [
             (x, y)
             for x in range(0, SCREEN_WIDTH - GRID_SIZE + 1, GRID_SIZE)
@@ -125,7 +124,8 @@ class Snake(GameObject):
 
         # Отрисовка головы змейки если туловища нет.
         if self.length == self.DEFAULT_LENGTH:
-            head_rect = pygame.Rect(self.get_head_position(), (GRID_SIZE, GRID_SIZE))
+            head_position = self.get_head_position()
+            head_rect = pygame.Rect(head_position, (GRID_SIZE, GRID_SIZE))
             pygame.draw.rect(screen, self.body_color, head_rect)
             pygame.draw.rect(screen, BORDER_COLOR, head_rect, 1)
 
@@ -180,11 +180,17 @@ class Snake(GameObject):
         self.length += 1
 
     def get_head_position(self) -> Tuple[int, int]:
-        """Возвращает позицию головы Змейки (первый элемент в списке positions)."""
+        """
+        Возвращает позицию головы Змейки
+        (первый элемент в списке positions).
+        """
         return self.positions[0]
 
     def reset(self) -> None:
-        """Сбрасывает Змейку в начальное состояние после столкновения с собой."""
+        """
+        Сбрасывает Змейку в начальное состояние
+        после столкновения с собой.
+        """
         self.length = self.DEFAULT_LENGTH
         self.positions = [SCREEN_CENTER]
         self.direction = choice([RIGHT, LEFT, UP, DOWN])
@@ -202,7 +208,6 @@ def handle_keys(game_object) -> None:
     Обрабатывает нажатия клавиш, чтобы
     изменить направление движения змейки.
     """
-
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
