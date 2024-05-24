@@ -146,29 +146,9 @@ class Snake(GameObject):
         в начало списка positions и удаляя последний элемент,
         если длинна змейки не увеличилась.
         """
-        dx, dy = self.get_head_position()
+        dx, dy = self.get_next_head_position(*self.get_head_position())
 
-        if self.direction == RIGHT:
-            dx = dx + GRID_SIZE
-            if dx == SCREEN_WIDTH:
-                dx = 0
-        elif self.direction == LEFT:
-            dx -= GRID_SIZE
-            if dx < 0:
-                dx = SCREEN_WIDTH - GRID_SIZE
-        elif self.direction == DOWN:
-            dy += GRID_SIZE
-            if dy == SCREEN_HEIGHT:
-                dy = 0
-        elif self.direction == UP:
-            dy -= GRID_SIZE
-            if dy < 0:
-                dy = SCREEN_HEIGHT - GRID_SIZE
-
-        if (dx, dy) in self.positions:
-            self.reset()
-            return
-
+        self.is_crash_checking(dx, dy)
         self.positions.insert(0, (dx, dy))
         self.last = self.positions[-1]
 
@@ -178,6 +158,11 @@ class Snake(GameObject):
     def increase(self) -> None:
         """Увеличивает длинну Змейки, иммитируя поедание Яблока."""
         self.length += 1
+
+    def is_crash_checking(self, x: int, y: int) -> None:
+        """Проверка на столкновение змейки с собой."""
+        if (x, y) in self.positions:
+            self.reset()
 
     def get_head_position(self) -> Tuple[int, int]:
         """
@@ -201,6 +186,33 @@ class Snake(GameObject):
     def is_crash_toggle(self):
         """Переключатель признака столкновения."""
         self.is_crash = not self.is_crash
+
+    def get_next_head_position(self, x: int, y: int) -> Tuple:
+        """
+        Вычисляет координаты нового положения головы змейки
+        относительно размера игрового поля в зависимости от направления
+        движения. Предусматривает перенос координат
+        на противоположную сторону, исключая выход за пределы
+        игрового поля.
+        """
+        if self.direction == RIGHT:
+            x = x + GRID_SIZE
+            if x == SCREEN_WIDTH:
+                x = 0
+        elif self.direction == LEFT:
+            x -= GRID_SIZE
+            if x < 0:
+                x = SCREEN_WIDTH - GRID_SIZE
+        elif self.direction == DOWN:
+            y += GRID_SIZE
+            if y == SCREEN_HEIGHT:
+                y = 0
+        elif self.direction == UP:
+            y -= GRID_SIZE
+            if y < 0:
+                y = SCREEN_HEIGHT - GRID_SIZE
+
+        return x, y
 
 
 def handle_keys(game_object) -> None:
