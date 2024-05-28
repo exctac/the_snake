@@ -139,8 +139,8 @@ class Apple(GameObject):
         исключая попадание Яблока на позицию Змейки.
         'exclude_positions' - список координат Змейки.
         """
-        if (exclude_positions is None or
-                not isinstance(exclude_positions, list)):
+        if (exclude_positions is None
+                or not isinstance(exclude_positions, list)):
             exclude_positions = []
 
         max_width = SCREEN_WIDTH - GRID_SIZE + 1
