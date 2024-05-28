@@ -3,6 +3,7 @@ from typing import List, Tuple, Union
 
 import pygame as pg
 
+
 # Константы для размеров поля и сетки:
 SCREEN_WIDTH, SCREEN_HEIGHT = 640, 480
 SCREEN_CENTER = SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2
