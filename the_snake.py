@@ -59,7 +59,7 @@ SPEED_MAX = 20
 SPEED_MIN = 5
 
 # Скорость движения змейки по умолчанию:
-speed = 10
+speed = 15
 
 # Флаг окончания игры
 game_over = False
@@ -76,6 +76,7 @@ clock = pg.time.Clock()
 
 class GameObject:
     """Базовый класс объектов игрового поля."""
+
     position: Tuple[int, int] = SCREEN_CENTER
 
     def __init__(
@@ -138,8 +139,8 @@ class Apple(GameObject):
         исключая попадание Яблока на позицию Змейки.
         'exclude_positions' - список координат Змейки.
         """
-        if not (exclude_positions is None and
-                isinstance(exclude_positions, list)):
+        if (exclude_positions is None or
+                not isinstance(exclude_positions, list)):
             exclude_positions = []
 
         max_width = SCREEN_WIDTH - GRID_SIZE + 1
