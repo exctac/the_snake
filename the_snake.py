@@ -42,7 +42,7 @@ DIRECTIONS = {
 BOARD_BACKGROUND_COLOR = (0, 0, 0)
 
 # Цвет фона инфоблока - серый:
-GAME_OVER_BG_COLOR = (192, 192, 192)
+GAME_OVER_BG_COLOR = (52, 52, 52)
 
 # Цвет границы ячейки
 BORDER_COLOR = (93, 216, 228)
@@ -55,11 +55,11 @@ SNAKE_COLOR = (0, 255, 0)
 
 # Клавиши изменнения скорости
 SPEED_CONTROL = {
-    pg.K_KP_PLUS: 5,
-    pg.K_KP_MINUS: -5,
+    pg.K_KP_PLUS: 4,
+    pg.K_KP_MINUS: -4,
 }
-SPEED_MAX = 20
-SPEED_MIN = 5
+SPEED_MAX = 25
+SPEED_MIN = 1
 
 # Скорость движения змейки по умолчанию:
 speed = 15
@@ -80,20 +80,20 @@ clock = pg.time.Clock()
 class GameObject:
     """Базовый класс объектов игрового поля."""
 
-    position: Tuple[int, int] = SCREEN_CENTER
-
     def __init__(
             self,
             body_color: Union[Tuple[int, int, int], None] = None,
     ) -> None:
         self.body_color = body_color
+        self.position: Tuple[int, int] = SCREEN_CENTER
 
     def draw(self) -> None:
         """
         Отрисовывает Объект на игровом поле.
         Переопределяется в дочерних классах.
         """
-        raise NotImplementedError
+        raise NotImplementedError(f'Определите метод "draw" в '
+                                  f'классе "{self.__class__.__name__}".')
 
     @staticmethod
     def draw_rectangle(
@@ -126,7 +126,7 @@ class Apple(GameObject):
             exclude_positions: List[Tuple[int, int]] = None,
     ) -> None:
         super().__init__(body_color)
-        self.randomize_position(exclude_positions)
+        self.randomize_position(exclude_positions or [])
 
     def draw(self) -> None:
         """Отрисовывает Яблоко на игровом поле."""
@@ -142,17 +142,12 @@ class Apple(GameObject):
         исключая попадание Яблока на позицию Змейки.
         'exclude_positions' - список координат Змейки.
         """
-        if (exclude_positions is None
-                or not isinstance(exclude_positions, list)):
-            exclude_positions = []
-
-        max_width = SCREEN_WIDTH - GRID_SIZE + 1
-        max_height = SCREEN_HEIGHT - GRID_SIZE + 1
         while True:
-            x = randrange(0, max_width, GRID_SIZE)
-            y = randrange(0, max_height, GRID_SIZE)
-            if (x, y) not in exclude_positions:
-                self.position = x, y
+            self.position = (
+                randrange(0, SCREEN_WIDTH - GRID_SIZE + 1, GRID_SIZE),
+                randrange(0, SCREEN_HEIGHT - GRID_SIZE + 1, GRID_SIZE),
+            )
+            if self.position not in exclude_positions:
                 break
 
 
@@ -170,8 +165,8 @@ class Snake(GameObject):
 
         self.direction = RIGHT
         self.last = None
-        self.length = Snake.DEFAULT_LENGTH
-        self.positions = [Snake.position]
+        self.length = self.DEFAULT_LENGTH
+        self.positions = [self.position]
 
     def draw(self) -> None:
         """Отрисовывает змейку на экране, затирая след."""
@@ -197,14 +192,13 @@ class Snake(GameObject):
         в начало списка positions и удаляя последний элемент,
         если длинна змейки не увеличилась.
         """
-        x, y = self.get_head_position()
+        position_x, position_y = self.get_head_position()
         direction_x, direction_y = self.direction
-        self.position = (
-            (x + (direction_x * GRID_SIZE)) % SCREEN_WIDTH,
-            (y + (direction_y * GRID_SIZE)) % SCREEN_HEIGHT,
-        )
 
-        self.positions.insert(0, self.position)
+        self.positions.insert(0, (
+            (position_x + (direction_x * GRID_SIZE)) % SCREEN_WIDTH,
+            (position_y + (direction_y * GRID_SIZE)) % SCREEN_HEIGHT,
+        ))
 
         self.last = None
         if len(self.positions) > self.length:
@@ -223,7 +217,7 @@ class Snake(GameObject):
         после столкновения с собой.
         """
         self.length = self.DEFAULT_LENGTH
-        self.positions = [Snake.position]
+        self.positions = [self.position]
         self.direction = choice([RIGHT, LEFT, UP, DOWN])
         self.last = None
 
@@ -321,7 +315,17 @@ def main() -> None:
         snake.move()
 
         head_position = snake.get_head_position()
-        if head_position in snake.positions[1:]:  # Проверка на столкновение
+        if (head_position in snake.positions[3:]
+                or head_position == snake.last):
+            # Проверка на столкновение с телом и хвостом. Пояснение.
+            # Столкновение произойдёт при длинне змейки >= 4.
+            # Если длинна > 4. Столкновение с телом или хвостом.
+            # Если длинна змейки будет = 4, то столкновение может произойти
+            # лишь с хвостом. Однако этого не произойдет, так как до данного
+            # условия в `snake.move()` уже расчитано новое положение головы,
+            # а хвост, с который голова может укусить уже удалён из
+            # `snake.positions` и записан в snake.last. Поэтому необходимо
+            # проверить столкновение с хвостом.
             screen.fill(BOARD_BACKGROUND_COLOR)
             snake.reset()
             apple.randomize_position(snake.positions)
